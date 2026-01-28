@@ -1,0 +1,44 @@
+/*
+ * Author : Alexander Perlock
+ * Date Updated : 28 01 2026
+ * 
+ * Style formating for all colouring based on theme
+ * Icon formating
+ */
+:root {
+    --bg-color: rgb(75, 81, 172);
+    --bg-color2: rgb(141, 148, 255);
+    --fg-color: black;
+    --href-color: Blue;
+}
+
+[data-theme="dark"] {
+    --bg-color: black;
+    --bg-color2: darkslategrey;
+    --fg-color: white;
+    --href-color: cornflowerblue;
+}
+
+@media (max-width:480px) {
+    #theme img {
+        width: clamp(16px, 2vw, 24px);
+    }
+}
+
+@media (min-width:480px) and (max-width:768px) {
+    #theme img {
+        width: clamp(16px, 2vw, 24px)
+    }
+}
+
+@media (min-width:768px) {
+    #theme {
+        position: fixed;
+        top: 0.8%;
+        right: 1.6%;
+        /* z-index: 1; */
+    }
+    #theme img {
+        width: clamp(16px, 2.5vw, 32px)
+    }
+}
