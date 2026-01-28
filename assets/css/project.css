@@ -19,6 +19,10 @@
     margin-bottom: 0.3em;
 }
 
+.container {
+    display: block
+}
+
 /* tablet */
 @media (min-width: 481px) and (max-width: 768px) {
     .projectimg {

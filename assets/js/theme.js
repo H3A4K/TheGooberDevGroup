@@ -15,7 +15,7 @@ function setTheme(theme) {
     localStorage.setItem("theme", theme);
 
     const button = document.getElementById("theme");
-    button.innerHTML = `<img src="./assets/imgs/${theme}_mode.png">`;
+    button.innerHTML = `<img src="./assets/images/${theme}_mode.png">`;
 }
 
 /**
