@@ -21,12 +21,7 @@
     --href-color: cornflowerblue;
 }
 
-:root:has(#darkmode input:checked) {
-    --bg-color: black;
-    --bg-color2: darkslategrey;
-    --fg-color: white;
-    --href-color: cornflowerblue;
-} */
+*/
 
 #darkmode {
     display:grid; 
