@@ -1,20 +1,47 @@
 .projectimg {
     max-width: 300px;
     max-height: 300px;
-    margin-right:2em;
-}
-
-#content {
-    padding-top: 1px;
-    padding-bottom: 2%;
+    margin-right: 2em;
+    border-radius: 8px;
+    border: 2px solid black;
 }
 
 .description {
     margin: 1em;
 }
 
-@media (max-width:420px) {
+.description h3 {
+    margin-bottom: 0.5em;
+}
+
+.description h4 {
+    margin-top: 1em;
+    margin-bottom: 0.3em;
+}
+
+/* tablet */
+@media (min-width: 481px) and (max-width: 768px) {
+    .projectimg {
+        max-width: 200px;
+        max-height: 200px;
+        margin-right: 1.5em;
+    }
+
+    .description {
+        margin: 0.8em;
+    }
+}
+
+/* mobile */
+@media (max-width: 480px) {
     .projectimg {
         max-width: 100%;
+        max-height: none;
+        margin-right: 0;
+        margin-bottom: 1em;
+    }
+
+    .description {
+        margin: 0.5em 0;
     }
 }

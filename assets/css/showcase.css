@@ -1,11 +1,16 @@
-.portfolio-links {
+#content ul {
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.showcase-links {
     display: flex;
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
 }
 
-.portfolio-item {
+.showcase-item {
     padding: 20px 30px;
     text-align: center;
     text-decoration: none;
@@ -18,7 +23,7 @@
 
 /* tablet */
 @media (min-width: 481px) and (max-width: 768px) {
-    .portfolio-item {
+    .showcase-item {
         padding: 15px 20px;
         font-size: 0.95em;
     }
@@ -26,11 +31,11 @@
 
 /* mobile */
 @media (max-width: 480px) {
-    .portfolio-links {
+    .showcase-links {
         flex-direction: column;
     }
 
-    .portfolio-item {
+    .showcase-item {
         padding: 12px 15px;
         font-size: 0.9em;
     }
