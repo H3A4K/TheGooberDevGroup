@@ -50,6 +50,8 @@ function invertTheme() {
     setTheme(theme);
 }
 
+var rootContext = document.body.getAttribute("data-root");
+
 // Browser event listener
 //https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript4
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
