@@ -1,10 +1,12 @@
+@import "theme.css";
+
 * {
     margin: 0;
     box-sizing: border-box;
 }
 
 /* Color Variables */
-:root {
+/* :root {
     --bg-color: rgb(75, 81, 172);
     --bg-color2: rgb(141, 148, 255);
     --fg-color: black;
@@ -23,9 +25,9 @@
     --bg-color2: darkslategrey;
     --fg-color: white;
     --href-color: cornflowerblue;
-}
+} */
 
-#darkmode {
+/* #darkmode {
     display:grid; 
     grid-template-columns: 1fr auto; 
     justify-items: end; 
@@ -34,7 +36,7 @@
 
 #darkmode input {
     margin-right: 0.2%;
-}
+} */
 
 
 #container {

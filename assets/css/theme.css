@@ -1,0 +1,52 @@
+/*
+ * Author : Alexander Perlock
+ * Date Updated : 28 01 2026
+ * 
+ * Style formating for all colouring based on theme
+ * Icon formating
+ */
+:root {
+    --bg-colour: #f0f0f0;
+    --fg-colour: #191919;
+
+    --h-colour: #3B3B3B;
+    --f-colour: #2A2A2A;
+
+    --href-colour: blue;
+    --nav-colour: cadetblue;
+}
+
+[data-theme="dark"] {
+    --bg-colour: #3B3B3B;
+    --fg-colour: #f0f0f0;
+
+    --h-colour: #2A2A2A;
+    --f-colour: #191919;
+
+    --href-colour: cornflowerblue;
+    --nav-colour: darkcyan;
+}
+
+@media (max-width:480px) {
+    #theme img {
+        width: clamp(16px, 2vw, 24px);
+    }
+}
+
+@media (min-width:480px) and (max-width:768px) {
+    #theme img {
+        width: clamp(16px, 2vw, 24px)
+    }
+}
+
+@media (min-width:768px) {
+    #theme {
+        position: fixed;
+        top: 0.8%;
+        right: 1.6%;
+        /* z-index: 1; */
+    }
+    #theme img {
+        width: clamp(16px, 2.5vw, 32px)
+    }
+}
