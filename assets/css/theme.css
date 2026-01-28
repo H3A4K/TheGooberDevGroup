@@ -6,25 +6,17 @@
  * Icon formating
  */
 :root {
-    --bg-colour: #f0f0f0;
-    --fg-colour: #191919;
-
-    --h-colour: #3B3B3B;
-    --f-colour: #2A2A2A;
-
-    --href-colour: blue;
-    --nav-colour: cadetblue;
+    --bg-color: rgb(75, 81, 172);
+    --bg-color2: rgb(141, 148, 255);
+    --fg-color: black;
+    --href-color: Blue;
 }
 
 [data-theme="dark"] {
-    --bg-colour: #3B3B3B;
-    --fg-colour: #f0f0f0;
-
-    --h-colour: #2A2A2A;
-    --f-colour: #191919;
-
-    --href-colour: cornflowerblue;
-    --nav-colour: darkcyan;
+    --bg-color: black;
+    --bg-color2: darkslategrey;
+    --fg-color: white;
+    --href-color: cornflowerblue;
 }
 
 @media (max-width:480px) {
