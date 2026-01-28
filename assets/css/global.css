@@ -23,6 +23,10 @@
 
 */
 
+.selected {
+    --bg-color: rgb(47, 52, 122);
+}
+
 #darkmode {
     display:grid; 
     grid-template-columns: 1fr auto; 
