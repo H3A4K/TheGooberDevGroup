@@ -27,8 +27,314 @@
         </div>
 
         <div id="content">
+            <div class="container">
+                <img src="./assets/images/ck_logo.png" class="projectimg">
 
-            
+                <h1>Clarence's Kitchen Redesign Development Plan</h1>
+
+                <h2>1. Original Website</h2>
+                <p>The original site can be located <a
+                        href="https://sites.google.com/student.tdsb.on.ca/clarences-kitchen/home">here.</a></p>
+
+                <h2>2. Names & App</h2>
+                <h3>Team Names</h3>
+                <ul>
+                    <li>Julien Wallace</li>
+                    <li>Daniel Kogan</li>
+                    <li>Alexander Perlock</li>
+                    <li>Neel Patel</li>
+                    <li>Ekaterina Uhalova</li>
+                </ul>
+
+                <h3>Client + Affiliation</h3>
+                <ul>
+                    <li><strong>Ometh from Clarence's Kitchen</strong></li>
+                    <li>A friend of one of the team members, whose dad owns a Shri Lankan restaurant in Scarborough.
+                    </li>
+                </ul>
+
+                <h3>App</h3>
+                <ul>
+                    <li>Clarence's Kitchen Website</li>
+                    <li>One big web app, with stuff like a menu, ordering system, pickup/delivery flows.</li>
+                </ul>
+                <br>
+
+                <h2>3. Purpose</h2>
+                <p>
+                    The app is to redesign the restaurant's website to be more modern and follow traditional design
+                    principles.
+                    We will have a menu that will list all the items and a large description with a button to add to
+                    cart, an ordering page that
+                    will show a shorter description and ability to add to cart, and a cart that will allow the user to
+                    place their order with the restaurant.
+                </p>
+                <p>
+                    There will also be an accounts system to allow users to see their previous orders. Customers will
+                    use the site to browse menu items,
+                    add items to their cart, select between pickup/delivery, create an account, and place orders online.
+                    Clarence's Kitchen will use the site to
+                    present a more modern brand image of themselves.
+                </p>
+                <p>
+                    We have chosen to take on redesigning their site, as the current one is outdated and does not follow
+                    traditional design principles.
+                    Ometh would like a modern site to draw in more customers. We will also make the site responsive, so
+                    that customers can use either their phones
+                    or their computers to place an order, which is currently not supported properly on their current
+                    site.
+                </p>
+                <br>
+
+                <h2>4. Data Description</h2>
+
+                <h3>Table 1: User Accounts</h3>
+                <p>
+                    We need this table to store the different customer's login details as well as any other information
+                    about their account.
+                    The information that will be stored is email, password, phone number, address and number of orders.
+                </p>
+                <p>
+                    Fields: <code>userid</code> (number), <code>email</code> (text), <code>password</code> (text),
+                    <code>phonenumber</code> (text), <code>address</code> (text), <code>ordersdone</code> (number).
+                    Primary key will be <code>accountId</code>.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>accountId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>password</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>phonenumber</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>address</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>ordersdone</code></td>
+                            <td>number</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Table 2: Products</h3>
+                <p>
+                    We need this table to easily get a list of all the available products that the customer is able to
+                    order.
+                    The information that will be stored is product name, product description and price.
+                </p>
+                <p>
+                    Fields: <code>productid</code> (number), <code>productname</code> (text), <code>productdesc</code>
+                    (text), <code>productClass</code> (text), <code>price</code> (float).
+                    Primary key will be <code>productid</code>.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>productId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>productName</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>productDesc</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>price</code></td>
+                            <td>float / Number</td>
+                        </tr>
+                        <tr>
+                            <td><code>productClass</code></td>
+                            <td>text</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Table 3: Orders</h3>
+                <p>
+                    We need this table to get a list of all orders that were ordered, including past orders for order
+                    history.
+                    The information that will be stored is the email and phone number that ordered, the address to
+                    deliver to if its delivery,
+                    the items in the order and the date it was ordered.
+                </p>
+                <p>
+                    Fields: <code>orderid</code> (number), <code>accountId</code> (Number), <code>Date</code> (text),
+                    <code>Address</code> (text), <code>items</code> (List).
+                    Primary key will be <code>orderId</code>.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>accountId</code></td>
+                            <td>Number</td>
+                        </tr>
+                        <tr>
+                            <td><code>Date</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>Address</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>items</code></td>
+                            <td>List</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+
+                <h2>5. Functions Performed by the App</h2>
+                <ul>
+                    <li><strong>Sign Up/Login Page</strong>
+                        <ul>
+                            <li>INSERT/UPDATE to database on signup</li>
+                            <li>SELECT from database on login</li>
+                        </ul>
+                    </li>
+                    <li><strong>Product/Ordering page</strong>
+                        <ul>
+                            <li>SELECT from database for products</li>
+                        </ul>
+                    </li>
+                    <li><strong>Cart Page</strong>
+                        <ul>
+                            <li>SELECT from database for products and account</li>
+                            <li>UPDATE to database for orders made / order history</li>
+                        </ul>
+                    </li>
+                    <li><strong>Search all keywords of items from entire website</strong>
+                        <ul>
+                            <li>SELECT from database for products</li>
+                        </ul>
+                    </li>
+                    <li><strong>Pick up service</strong>
+                        <ul>
+                            <li>SELECT from database for pending orders</li>
+                            <li>UPDATE to database to complete order</li>
+                        </ul>
+                    </li>
+                </ul>
+                <br>
+
+                <h2>6. Roles of Team Members</h2>
+                <ul>
+                    <li><strong>Julien Wallace:</strong> Responsible for implementing shop, ordering, and catering
+                        pages, as well as pulling items from menu database and updating them.</li>
+                    <li><strong>Daniel Kogan:</strong> Responsible for implementing the account system, including sign
+                        up, login, and data integration with database.</li>
+                    <li><strong>Alexander Perlock:</strong> Responsible for implementing pickup service workflow,
+                        including pickup selection and pickup-related user flow.</li>
+                    <li><strong>Neel Patel:</strong> Responsible for implementing the menu page, including product
+                        display, organization, and menu browsing experience.</li>
+                    <li><strong>Ekaterina Uhalova:</strong> Responsible for implementation of promo codes and special
+                        discounts available when certain order conditions are met by the user.</li>
+                </ul>
+                <br>
+
+                <h2>7. Wireframes</h2>
+                <p> A PDF with wireframes of the most important pages can be found <a href="./assets/Clarence Kitchen Wireframes.pdf">here.</a></p>
+                <br>
+
+                <h2>8. Increments</h2>
+
+                <h3>First Increment – Website Structure</h3>
+                <p><strong>Date:</strong> April 3rd, 2026</p>
+                <p>The goal of the first increment is to deliver a prototype of where elements will be placed on the
+                    page, as well as what they will look like.</p>
+                <p><strong>Functionality from each member</strong></p>
+                <ul>
+                    <li>Julien Wallace – Implement shop, ordering, catering pages based off of wireframes</li>
+                    <li>Daniel Kogan – Implement login, signup and account management pages based on wireframes</li>
+                    <li>Alexander Perlock – Implement pickup service pages from wireframes (user view and admin view)
+                    </li>
+                    <li>Neel Patel – Implement menu page from wireframes</li>
+                    <li>Ekaterina Uhalova – Implement promo codes and special discounts on page</li>
+                </ul>
+                <p><strong>Deliverable</strong></p>
+                <p>A modern, responsive prototype with navigation, menu, and layouts for all pages of the site.</p>
+
+                <h3>Second Increment – Ordering and Cart Functionality</h3>
+                <p><strong>Date:</strong> April 8th, 2026</p>
+                <p>The goal of the second increment is to allow users to begin placing orders by selecting the products
+                    they want and managing them in the cart.</p>
+                <p><strong>Functionality from each member</strong></p>
+                <ul>
+                    <li>Julien Wallace – Store and retrieve user’s cart from database</li>
+                    <li>Daniel Kogan – Store and retrieve payment info from user accounts for orders</li>
+                    <li>Alexander Perlock – Update orders in database depending on ready state for pickup/delivery
+                        orders and show visually</li>
+                    <li>Neel Patel – Retrieve menu items from database, add ability to add new menu items to database
+                        from admin page. Add items to cart</li>
+                    <li>Ekaterina Uhalova – Calculate and apply discounts to user’s cart</li>
+                </ul>
+                <p><strong>Deliverable</strong></p>
+                <p>Users can browse products, add products to their cart, choose pickup/delivery, and log into an
+                    account.</p>
+
+                <h3>Third Increment – Final Delivery</h3>
+                <p><strong>Date:</strong> April 19th, 2026</p>
+                <p>The goal of the third increment is to complete the full app by allowing users to place and complete
+                    their orders, store order data, and finalize the design.</p>
+                <p><strong>Functionality from each member</strong></p>
+                <ul>
+                    <li>Julien Wallace – Integrate cart service with pickup/delivery service</li>
+                    <li>Daniel Kogan – Store and retrieve order data for user accounts, show total orders, revenue for
+                        admin account</li>
+                    <li>Alexander Perlock – Finalize pickup service with separate page showing pending orders and way to
+                        complete them</li>
+                    <li>Neel Patel – Finalize design of menu</li>
+                    <li>Ekaterina Uhalova – Ability to add new promo codes, special discounts from admin account</li>
+                </ul>
+                <p><strong>Deliverable</strong></p>
+                <p>A complete restaurant website where customers can create accounts, browse the menu, place
+                    pickup/delivery orders, and view their previous orders.</p>
+                <br>
+
+                <h2>9. Client Feedback</h2>
+                <p>Based on the client’s feedback, we adjusted the project plan to make smooth, modern user interface,
+                    using the orange, black, and white colour scheme as requested by Ometh. We are also adding personal
+                    branding elements like a quote or emblem and wait time estimation after placing an order. Ometh
+                    confirmed that the site must be able to support customer accounts and order history. </p>
+
+            </div>
         </div>
 
     </div>
