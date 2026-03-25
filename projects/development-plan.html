@@ -72,9 +72,9 @@
                 <p>
                     There will also be an accounts system to allow users to see their previous orders. Customers will
                     use the site to browse menu items,
-                    add items to their cart, select between pickup/delivery, create an account, and place orders online.
-                    Clarence's Kitchen will use the site to
-                    present a more modern brand image of themselves.
+                    add items to their cart, select between pickup/delivery, create an account, apply promo codes for
+                    discounts, and place orders online. Clarence's Kitchen will use the site to
+                    present a more modern brand image of themselves and manage promotions through promo codes.
                 </p>
                 <p>
                     We have chosen to take on redesigning their site, as the current one is outdated and does not follow
@@ -180,14 +180,15 @@
                 <p>
                     We need this table to get a list of all orders that were ordered, including past orders for order
                     history.
-                    The information that will be stored is the email and phone number that ordered, the address to
-                    deliver to if its delivery,
-                    the items in the order and the date it was ordered.
+                    The information that will be stored is the account that ordered, the address to
+                    deliver to if its delivery, the date it was ordered, and whether the order has been fulfilled.
+                    The individual items in each order are stored in the OrderDetails table (see below),
+                    following proper database normalization principles (similar to the Northwind sample database on W3Schools).
                 </p>
                 <p>
-                    Fields: <code>orderid</code> (number), <code>accountId</code> (Number), <code>Date</code> (text),
-                    <code>Address</code> (text), <code>items</code> (List).
-                    Primary key will be <code>orderId</code>.
+                    Fields: <code>orderId</code> (number), <code>accountId</code> (number), <code>orderDate</code> (text),
+                    <code>address</code> (text), <code>fulfilled</code> (boolean).
+                    Primary key will be <code>orderId</code>. Foreign key <code>accountId</code> references User Accounts.
                 </p>
                 <table>
                     <thead>
@@ -203,25 +204,123 @@
                         </tr>
                         <tr>
                             <td><code>accountId</code></td>
-                            <td>Number</td>
+                            <td>number</td>
                         </tr>
                         <tr>
-                            <td><code>Date</code></td>
+                            <td><code>orderDate</code></td>
                             <td>text</td>
                         </tr>
                         <tr>
-                            <td><code>Address</code></td>
+                            <td><code>address</code></td>
                             <td>text</td>
                         </tr>
                         <tr>
-                            <td><code>items</code></td>
-                            <td>List</td>
+                            <td><code>fulfilled</code></td>
+                            <td>boolean</td>
                         </tr>
                     </tbody>
                 </table>
+
+                <h3>Table 4: OrderDetails</h3>
+                <p>
+                    This junction table links orders to the products they contain, rather than storing a list of items
+                    directly in the Orders table. Each row represents one product line in an order, with a quantity field.
+                    This follows the same pattern as the OrderDetails table in the Northwind sample database.
+                </p>
+                <p>
+                    Fields: <code>orderDetailId</code> (number), <code>orderId</code> (number), <code>productId</code> (number),
+                    <code>quantity</code> (number).
+                    Primary key will be <code>orderDetailId</code>. Foreign key <code>orderId</code> references Orders,
+                    foreign key <code>productId</code> references Products.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderDetailId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>productId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>quantity</code></td>
+                            <td>number</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Table 5: PromoCodes</h3>
+                <p>
+                    This table stores promotional codes and discounts that can be applied to orders. Promo codes
+                    are entered by the customer at checkout and validated against this table. When a valid promo code
+                    is applied, the discount is calculated and deducted from the order total in the cart before the
+                    order is placed. Admins can create, modify, and deactivate promo codes through the admin interface.
+                </p>
+                <p>
+                    Fields: <code>promoId</code> (number), <code>promoCode</code> (text), <code>discountType</code> (text),
+                    <code>discountValue</code> (float), <code>active</code> (boolean), <code>expiryDate</code> (text).
+                    Primary key will be <code>promoId</code>. The <code>discountType</code> field is either
+                    "percent" or "amount", which determines how <code>discountValue</code> is applied
+                    (e.g. 15% off vs. $5 off).
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>promoId</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>promoCode</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>discountType</code></td>
+                            <td>text ("percent" or "amount")</td>
+                        </tr>
+                        <tr>
+                            <td><code>discountValue</code></td>
+                            <td>float / Number</td>
+                        </tr>
+                        <tr>
+                            <td><code>active</code></td>
+                            <td>boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>expiryDate</code></td>
+                            <td>text</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Shopping Cart (localStorage)</h3>
+                <p>
+                    The shopping cart will be managed client-side using the browser's localStorage. Cart data
+                    (product IDs and quantities) is stored as a JSON object in localStorage, so the cart persists
+                    across page navigations and browser sessions on the same device. When the user places an order,
+                    the cart contents are sent to the server, which creates the Order and OrderDetails entries in the
+                    database, and the cart is cleared from localStorage.
+                </p>
                 <br>
 
                 <h2>5. Functions Performed by the App</h2>
+                <h3>Customer Functions</h3>
                 <ul>
                     <li><strong>Sign Up/Login Page</strong>
                         <ul>
@@ -236,8 +335,9 @@
                     </li>
                     <li><strong>Cart Page</strong>
                         <ul>
-                            <li>SELECT from database for products and account</li>
-                            <li>UPDATE to database for orders made / order history</li>
+                            <li>Cart contents stored and managed in browser localStorage (client-side)</li>
+                            <li>SELECT from PromoCodes table to validate and apply promo codes at checkout</li>
+                            <li>INSERT into Orders and OrderDetails tables when placing an order</li>
                         </ul>
                     </li>
                     <li><strong>Search all keywords of items from entire website</strong>
@@ -249,6 +349,29 @@
                         <ul>
                             <li>SELECT from database for pending orders</li>
                             <li>UPDATE to database to complete order</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Admin Functions</h3>
+                <ul>
+                    <li><strong>Order Management</strong>
+                        <ul>
+                            <li>SELECT from Orders and OrderDetails tables to view all orders</li>
+                            <li>UPDATE Orders table to mark orders as fulfilled</li>
+                        </ul>
+                    </li>
+                    <li><strong>Product Management</strong>
+                        <ul>
+                            <li>INSERT into Products table to add new products</li>
+                            <li>UPDATE Products table to modify existing products</li>
+                            <li>DELETE from Products table to remove products</li>
+                        </ul>
+                    </li>
+                    <li><strong>Promo Code Management</strong>
+                        <ul>
+                            <li>INSERT into PromoCodes table to create new promo codes</li>
+                            <li>UPDATE PromoCodes table to modify or deactivate promo codes</li>
+                            <li>SELECT from PromoCodes table to view all promo codes</li>
                         </ul>
                     </li>
                 </ul>
@@ -264,8 +387,12 @@
                         including pickup selection and pickup-related user flow.</li>
                     <li><strong>Neel Patel:</strong> Responsible for implementing the menu page, including product
                         display, organization, and menu browsing experience.</li>
-                    <li><strong>Ekaterina Uhalova:</strong> Responsible for implementation of promo codes and special
-                        discounts available when certain order conditions are met by the user.</li>
+                    <li><strong>Ekaterina Uhalova:</strong> Responsible for the admin interface and promo code system.
+                        This includes building the admin pages for managing orders (viewing and marking as fulfilled),
+                        managing products (add, modify, delete), and managing promo codes (create, modify, deactivate).
+                        Promo codes are stored in the PromoCodes database table and are validated and applied at checkout
+                        in the cart, where the discount is calculated and deducted from the order total before the order
+                        is placed.</li>
                 </ul>
                 <br>
 
@@ -287,7 +414,7 @@
                     <li>Alexander Perlock – Implement pickup service pages from wireframes (user view and admin view)
                     </li>
                     <li>Neel Patel – Implement menu page from wireframes</li>
-                    <li>Ekaterina Uhalova – Implement promo codes and special discounts on page</li>
+                    <li>Ekaterina Uhalova – Implement admin interface pages (order management, product management, promo code management) based on wireframes</li>
                 </ul>
                 <p><strong>Deliverable</strong></p>
                 <p>A modern, responsive prototype with navigation, menu, and layouts for all pages of the site.</p>
@@ -304,7 +431,7 @@
                         orders and show visually</li>
                     <li>Neel Patel – Retrieve menu items from database, add ability to add new menu items to database
                         from admin page. Add items to cart</li>
-                    <li>Ekaterina Uhalova – Calculate and apply discounts to user’s cart</li>
+                    <li>Ekaterina Uhalova – Implement admin order management page (view orders, mark as fulfilled). Implement promo code validation and discount calculation at checkout in the cart</li>
                 </ul>
                 <p><strong>Deliverable</strong></p>
                 <p>Users can browse products, add products to their cart, choose pickup/delivery, and log into an
@@ -322,7 +449,7 @@
                     <li>Alexander Perlock – Finalize pickup service with separate page showing pending orders and way to
                         complete them</li>
                     <li>Neel Patel – Finalize design of menu</li>
-                    <li>Ekaterina Uhalova – Ability to add new promo codes, special discounts from admin account</li>
+                    <li>Ekaterina Uhalova – Finalize admin interface: product management (add, modify, delete products) and promo code management (create, modify, deactivate promo codes) from admin account</li>
                 </ul>
                 <p><strong>Deliverable</strong></p>
                 <p>A complete restaurant website where customers can create accounts, browse the menu, place
