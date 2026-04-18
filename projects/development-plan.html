@@ -36,6 +36,15 @@
                 <p>The original site can be located <a
                         href="https://sites.google.com/student.tdsb.on.ca/clarences-kitchen/home">here.</a></p>
 
+                <aside class="revision-log" aria-labelledby="revision-log-heading">
+                    <h3 id="revision-log-heading">Revisions</h3>
+                    <p class="rev-date">This plan has been amended to reflect the features actually delivered during implementation. Sections changed from the original draft are marked with
+                        <span class="revision-badge revised">Revised</span>
+                        and brand-new sections with
+                        <span class="revision-badge new">New</span>.
+                        Row-level additions inside existing tables are highlighted in green.</p>
+                </aside>
+
                 <h2>2. Names & App</h2>
                 <h3>Team Names</h3>
                 <ul>
@@ -88,15 +97,15 @@
 
                 <h2>4. Data Description</h2>
 
-                <h3>Table 1: User Accounts</h3>
+                <h3>Table 1: User Accounts <span class="revision-badge revised">Revised</span></h3>
                 <p>
                     We need this table to store the different customer's login details as well as any other information
                     about their account.
-                    The information that will be stored is email, password, phone number, address and number of orders.
+                    The information that will be stored is email, password, phone number, address<ins>, number of orders, and an admin flag that gates access to the admin pages</ins>.
                 </p>
                 <p>
                     Fields: <code>userid</code> (number), <code>email</code> (text), <code>password</code> (text),
-                    <code>phonenumber</code> (text), <code>address</code> (text), <code>ordersdone</code> (number).
+                    <code>phonenumber</code> (text), <code>address</code> (text), <code>ordersdone</code> (number)<ins>, <code>admin</code> (boolean)</ins>.
                     Primary key will be <code>accountId</code>.
                 </p>
                 <table>
@@ -131,19 +140,26 @@
                             <td><code>ordersdone</code></td>
                             <td>number</td>
                         </tr>
+                        <tr class="new-row">
+                            <td><code>admin</code></td>
+                            <td>boolean (default 0)</td>
+                        </tr>
                     </tbody>
                 </table>
+                <aside class="revision-note">
+                    <p>Added an <code>admin</code> boolean column so the same users table can back both customer and administrator accounts. Every admin page (<code>/admin/*</code>) checks this flag before rendering; setting <code>admin = 1</code> on a seeded user is how we grant access to the admin panel during testing.</p>
+                </aside>
 
-                <h3>Table 2: Products</h3>
+                <h3>Table 2: Products <span class="revision-badge revised">Revised</span></h3>
                 <p>
                     We need this table to easily get a list of all the available products that the customer is able to
                     order.
-                    The information that will be stored is product name, product description and price.
+                    The information that will be stored is product name, product description<ins>, the filename of an uploaded product image</ins>, and price.
                 </p>
                 <p>
                     Fields: <code>productid</code> (number), <code>productname</code> (text), <code>productdesc</code>
-                    (text), <code>productClass</code> (text), <code>price</code> (float).
-                    Primary key will be <code>productid</code>.
+                    (text), <code>price</code> (float)<ins>, <code>productImg</code> (text, filename in <code>assets/images/menu/</code>)</ins>, <code>productClass</code> (text).
+                    Primary key will be <code>productid</code>. <ins><code>productClass</code> is a foreign key that references <code>productClasses.name</code> (see Table 6 below).</ins>
                 </p>
                 <table>
                     <thead>
@@ -169,12 +185,20 @@
                             <td><code>price</code></td>
                             <td>float / Number</td>
                         </tr>
+                        <tr class="new-row">
+                            <td><code>productImg</code></td>
+                            <td>text (filename only)</td>
+                        </tr>
                         <tr>
                             <td><code>productClass</code></td>
-                            <td>text</td>
+                            <td>text (FK &rarr; productClasses.name)</td>
                         </tr>
                     </tbody>
                 </table>
+                <aside class="revision-note">
+                    <p>Admins can now upload PNG or JPG images for each menu item through the Products admin page. Uploads are validated server-side via <code>getimagesize()</code>, capped at 5&nbsp;MB, and stored with a collision-safe server-generated filename (e.g. <code>product_65f3abc.png</code>) under <code>assets/images/menu/</code>. The database stores only the filename in <code>productImg</code>; the frontend prepends the image directory path when rendering.</p>
+                    <p><code>productClass</code> has also been promoted to a proper foreign key linking into the new <code>productClasses</code> taxonomy table so categories can be administered centrally instead of being free-text per product.</p>
+                </aside>
 
                 <h3>Table 3: Orders</h3>
                 <p>
@@ -260,16 +284,17 @@
                     </tbody>
                 </table>
 
-                <h3>Table 5: PromoCodes</h3>
+                <h3>Table 5: PromoCodes <span class="revision-badge revised">Revised</span></h3>
                 <p>
                     This table stores promotional codes and discounts that can be applied to orders. Promo codes
                     are entered by the customer at checkout and validated against this table. When a valid promo code
                     is applied, the discount is calculated and deducted from the order total in the cart before the
                     order is placed. Admins can create, modify, and deactivate promo codes through the admin interface.
+                    <ins>A promo code can optionally require specific products to be in the customer's cart before it applies (see the new <code>requiredProductIDs</code> column below).</ins>
                 </p>
                 <p>
                     Fields: <code>promoId</code> (number), <code>promoCode</code> (text), <code>discountType</code> (text),
-                    <code>discountValue</code> (float), <code>active</code> (boolean), <code>expiryDate</code> (text).
+                    <code>discountValue</code> (float), <code>active</code> (boolean), <code>expiryDate</code> (text)<ins>, <code>requiredProductIDs</code> (text, comma-separated product IDs, optional)</ins>.
                     Primary key will be <code>promoId</code>. The <code>discountType</code> field is either
                     "percent" or "amount", which determines how <code>discountValue</code> is applied
                     (e.g. 15% off vs. $5 off).
@@ -306,20 +331,143 @@
                             <td><code>expiryDate</code></td>
                             <td>text</td>
                         </tr>
+                        <tr class="new-row">
+                            <td><code>requiredProductIDs</code></td>
+                            <td>text (comma-separated IDs, NULL = no requirements)</td>
+                        </tr>
                     </tbody>
                 </table>
+                <aside class="revision-note">
+                    <p>Added <code>requiredProductIDs</code> so a promo code can be restricted to orders that include specific menu items; e.g. the seeded <code>WINGSFRIES</code> code only applies when both Classic Battered Fried Wings (101) and CK Loaded Fries (104) are in the cart. If the field is NULL the code behaves like a universal discount.</p>
+                    <p>Validation happens in three places to prevent tampering: (1) when the customer clicks <em>Apply</em> (server returns a descriptive error naming any missing items), (2) on every cart refresh (a stale code whose required items were removed is silently dropped), and (3) again at order completion (<code>complete_order.php</code>) as a final server-side guard before the order is marked fulfilled.</p>
+                </aside>
 
-                <h3>Shopping Cart (localStorage)</h3>
+                <h3>Table 6: ProductClasses <span class="revision-badge new">New</span></h3>
                 <p>
-                    The shopping cart will be managed client-side using the browser's localStorage. Cart data
-                    (product IDs and quantities) is stored as a JSON object in localStorage, so the cart persists
-                    across page navigations and browser sessions on the same device. When the user places an order,
-                    the cart contents are sent to the server, which creates the Order and OrderDetails entries in the
-                    database, and the cart is cleared from localStorage.
+                    Introduced so menu item categories (CK Favourites, Side, Drink, Salad, etc.) are managed centrally instead of being typed as free text on every product. Each row is one category; products link to a category via the <code>products.productClass</code> foreign key.
                 </p>
+                <p>
+                    Fields: <code>classID</code> (number), <code>name</code> (text, unique), <code>quantity</code> (number), <code>time</code> (decimal).
+                    Primary key will be <code>classID</code>.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>classID</code></td>
+                            <td>number (auto-increment)</td>
+                        </tr>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>varchar(255) UNIQUE</td>
+                        </tr>
+                        <tr>
+                            <td><code>quantity</code></td>
+                            <td>number</td>
+                        </tr>
+                        <tr>
+                            <td><code>time</code></td>
+                            <td>decimal(5,2)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <aside class="revision-note">
+                    <p>Seeded with four rows matching the live menu structure: <em>CK Favourites</em>, <em>Side</em>, <em>Drink</em>, and <em>Salad</em>. The menu page uses these to populate its category filter checkbox list, and the Products admin uses them to populate the "Product Class" dropdown when creating or editing a product.</p>
+                </aside>
+
+                <h3>Table 7: Promotions <span class="revision-badge new">New</span></h3>
+                <p>
+                    Added to drive the promotional banners displayed at the top of the menu page (see the <em>Menu Page</em> notes in Section 5). Each row is one visual promo card with its own title, eyebrow label, price display, badge, description, fine print, theme color, banner image, and an optional promo code the customer can copy into the cart. This is deliberately <strong>separate</strong> from the PromoCodes table (a Promotion is marketing content, a PromoCode is redeemable logic), and admins manage them from two distinct admin pages.
+                </p>
+                <p>
+                    Fields: <code>promotionID</code> (number), <code>title</code> (text), <code>eyebrow</code> (text), <code>price</code> (text, display-formatted, e.g. "$22.99"), <code>badge</code> (text), <code>description</code> (text), <code>finePrint</code> (text, one rule per line), <code>image</code> (text, filename), <code>theme</code> (text, one of <code>orange</code>/<code>brown</code>/<code>green</code>/<code>blue</code>), <code>ctaLabel</code> (text), <code>active</code> (boolean), <code>sortOrder</code> (number), <code>promoCode</code> (text, optional).
+                    Primary key will be <code>promotionID</code>.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>promotionID</code></td>
+                            <td>number (auto-increment)</td>
+                        </tr>
+                        <tr>
+                            <td><code>title</code></td>
+                            <td>varchar(255) NOT NULL</td>
+                        </tr>
+                        <tr>
+                            <td><code>eyebrow</code></td>
+                            <td>varchar(100)</td>
+                        </tr>
+                        <tr>
+                            <td><code>price</code></td>
+                            <td>varchar(50) (display text)</td>
+                        </tr>
+                        <tr>
+                            <td><code>badge</code></td>
+                            <td>varchar(100)</td>
+                        </tr>
+                        <tr>
+                            <td><code>description</code></td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td><code>finePrint</code></td>
+                            <td>text (newline-separated rules)</td>
+                        </tr>
+                        <tr>
+                            <td><code>image</code></td>
+                            <td>varchar(255) (filename)</td>
+                        </tr>
+                        <tr>
+                            <td><code>theme</code></td>
+                            <td>varchar(20) default 'orange'</td>
+                        </tr>
+                        <tr>
+                            <td><code>ctaLabel</code></td>
+                            <td>varchar(50) default 'Order Now'</td>
+                        </tr>
+                        <tr>
+                            <td><code>active</code></td>
+                            <td>boolean default 1</td>
+                        </tr>
+                        <tr>
+                            <td><code>sortOrder</code></td>
+                            <td>number default 0</td>
+                        </tr>
+                        <tr>
+                            <td><code>promoCode</code></td>
+                            <td>varchar(50) (optional, for display)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <aside class="revision-note">
+                    <p>Seeded with two banners to demonstrate the feature on a fresh install: <em>Wings &amp; Fries</em> ($22.99, orange theme, linked to the <code>WINGSFRIES</code> promo code from Table 5) and <em>Pick 3 Favourites</em> ($39.99, brown theme, linked to the <code>PICK3</code> promo code). Admins can add/edit/deactivate them through the dedicated Promotions admin page (<code>/admin/managepromotions.html</code>), including uploading banner images.</p>
+                </aside>
+
+                <h3>Shopping Cart <span class="revision-badge revised">Revised</span></h3>
+                <p>
+                    <del>The shopping cart will be managed client-side using the browser's localStorage. Cart data (product IDs and quantities) is stored as a JSON object in localStorage, so the cart persists across page navigations and browser sessions on the same device. When the user places an order, the cart contents are sent to the server, which creates the Order and OrderDetails entries in the database, and the cart is cleared from localStorage.</del>
+                </p>
+                <p>
+                    <ins>The shopping cart is tracked server-side on the existing Orders / OrderDetails tables rather than in browser storage. When a logged-in customer adds their first item, an Orders row is created with <code>fullfilled = 0</code>; that "open order" is the user's cart. Subsequent adds become OrderDetails rows tied to the same order. Cart reads, removes, promo apply/remove, and checkout all operate on this open order. Completing the order flips <code>fullfilled</code> to 1 and any applied promo code is cleared from the session so the next cart starts fresh.</ins>
+                </p>
+                <aside class="revision-note">
+                    <p>We moved away from localStorage for three reasons: (1) it let us validate cart contents server-side when applying conditional promo codes (see Table 5), (2) it survives the customer switching devices as long as they're logged into the same account, and (3) it gave us a single source of truth, since admins viewing the Orders page see the same data the customer sees in their cart.</p>
+                    <p>Relevant endpoints: <code>assets/php/add_to_order.php</code>, <code>get_cart.php</code>, <code>remove_from_order.php</code>, <code>apply_promocode.php</code>, <code>remove_promocode.php</code>, and <code>complete_order.php</code>. The applied promo code lives in <code>$_SESSION["appliedPromoID"]</code> while the cart itself lives in the database.</p>
+                </aside>
                 <br>
 
-                <h2>5. Functions Performed by the App</h2>
+                <h2>5. Functions Performed by the App <span class="revision-badge revised">Revised</span></h2>
                 <h3>Customer Functions</h3>
                 <ul>
                     <li><strong>Sign Up/Login Page</strong>
@@ -328,16 +476,28 @@
                             <li>SELECT from database on login</li>
                         </ul>
                     </li>
+                    <li><strong>Account Page</strong> <span class="revision-badge revised">Revised</span>
+                        <ul>
+                            <li>SELECT from users table to <ins>pre-fill the current email, phone number, and address into the update form so the customer can see their existing values before editing</ins></li>
+                            <li>UPDATE users table through <code>changecredential.php</code> when the customer saves a new value</li>
+                        </ul>
+                    </li>
                     <li><strong>Product/Ordering page</strong>
                         <ul>
                             <li>SELECT from database for products</li>
+                            <li><ins>SELECT from promotions table (where <code>active = 1</code>) to render promotional banners above the menu grid</ins></li>
+                            <li><ins>SELECT from productClasses to build the category filter checkbox list</ins></li>
                         </ul>
                     </li>
-                    <li><strong>Cart Page</strong>
+                    <li><strong>Cart Page</strong> <span class="revision-badge revised">Revised</span>
                         <ul>
-                            <li>Cart contents stored and managed in browser localStorage (client-side)</li>
-                            <li>SELECT from PromoCodes table to validate and apply promo codes at checkout</li>
-                            <li>INSERT into Orders and OrderDetails tables when placing an order</li>
+                            <li><del>Cart contents stored and managed in browser localStorage (client-side)</del></li>
+                            <li><ins>Cart contents are tracked server-side as an open Orders row (<code>fullfilled = 0</code>) plus its OrderDetails; the customer's login session ties the cart to them</ins></li>
+                            <li><ins>INSERT into OrderDetails (and create a new Orders row on first add) through <code>add_to_order.php</code></ins></li>
+                            <li><ins>DELETE individual items through <code>remove_from_order.php</code> (single-item remove button on every cart row)</ins></li>
+                            <li>SELECT from PromoCodes table to validate and apply promo codes at checkout <ins>(<code>apply_promocode.php</code>, including the new <code>requiredProductIDs</code> check against the current cart)</ins></li>
+                            <li><ins>Clear the applied promo through <code>remove_promocode.php</code> when the customer clicks the &times; on the applied-promo chip</ins></li>
+                            <li><ins>UPDATE Orders table to flip <code>fullfilled = 1</code> on checkout; the server re-verifies the applied promo code's requirements one last time before finalizing</ins></li>
                         </ul>
                     </li>
                     <li><strong>Search all keywords of items from entire website</strong>
@@ -352,6 +512,10 @@
                         </ul>
                     </li>
                 </ul>
+                <aside class="revision-note">
+                    <p>The cart is now a first-class database concept rather than a client-side blob, which made it straightforward to implement cart item removal, conditional promo codes, and server-side re-validation at checkout time. The page flow is unchanged from the customer's perspective; only the storage layer moved.</p>
+                </aside>
+
                 <h3>Admin Functions</h3>
                 <ul>
                     <li><strong>Order Management</strong>
@@ -360,24 +524,34 @@
                             <li>UPDATE Orders table to mark orders as fulfilled</li>
                         </ul>
                     </li>
-                    <li><strong>Product Management</strong>
+                    <li><strong>Product Management</strong> <span class="revision-badge revised">Revised</span>
                         <ul>
                             <li>INSERT into Products table to add new products</li>
                             <li>UPDATE Products table to modify existing products</li>
                             <li>DELETE from Products table to remove products</li>
+                            <li><ins>Upload a PNG or JPG image for each product; the server validates it via <code>getimagesize()</code>, caps size at 5&nbsp;MB, generates a safe filename, writes to <code>assets/images/menu/</code>, and stores the filename in <code>products.productImg</code></ins></li>
                         </ul>
                     </li>
-                    <li><strong>Promo Code Management</strong>
+                    <li><strong>Promo Code Management</strong> <span class="revision-badge revised">Revised</span>
                         <ul>
                             <li>INSERT into PromoCodes table to create new promo codes</li>
                             <li>UPDATE PromoCodes table to modify or deactivate promo codes</li>
                             <li>SELECT from PromoCodes table to view all promo codes</li>
+                            <li><ins>Set a comma-separated list of required product IDs per code (<code>requiredProductIDs</code>) to turn a general discount into a cart-contingent one; sanitized on save and re-validated at apply-time, cart-refresh, and order-completion</ins></li>
+                        </ul>
+                    </li>
+                    <li><strong>Promotion Management</strong> <span class="revision-badge new">New</span>
+                        <ul>
+                            <li>Separate admin page (<code>/admin/managepromotions.html</code>), distinct from Promo Codes, for the visual promotional banners displayed above the customer-facing menu</li>
+                            <li>INSERT / UPDATE / DELETE rows in the new Promotions table (title, eyebrow, price display, badge, description, fine print, CTA label, theme color, active flag, sort order, optional linked promo code)</li>
+                            <li>Upload a banner image for each promotion (same PNG/JPG pipeline as product images, stored under <code>assets/images/menu/</code> with a <code>promo_</code> filename prefix)</li>
+                            <li>Toggle <code>active</code> to hide/show a banner without losing its configuration; reorder banners via <code>sortOrder</code></li>
                         </ul>
                     </li>
                 </ul>
                 <br>
 
-                <h2>6. Roles of Team Members</h2>
+                <h2>6. Roles of Team Members <span class="revision-badge revised">Revised</span></h2>
                 <ul>
                     <li><strong>Julien Wallace:</strong> Responsible for implementing shop, ordering, and catering
                         pages, as well as pulling items from menu database and updating them.</li>
@@ -386,14 +560,19 @@
                     <li><strong>Alexander Perlock:</strong> Responsible for implementing pickup service workflow,
                         including pickup selection and pickup-related user flow.</li>
                     <li><strong>Neel Patel:</strong> Responsible for implementing the menu page, including product
-                        display, organization, and menu browsing experience.</li>
-                    <li><strong>Ekaterina Uhalova:</strong> Responsible for the admin interface and promo code system.
+                        display, organization, and menu browsing experience.
+                        <ins>Also responsible for the customer-facing promotional banners rendered above the menu grid from the <code>promotions</code> table, since these are part of the menu page.</ins></li>
+                    <li><strong>Ekaterina Uhalova:</strong> Responsible for the admin interface<del>and promo code system</del><ins>and promo code system</ins>.
                         This includes building the admin pages for managing orders (viewing and marking as fulfilled),
-                        managing products (add, modify, delete), and managing promo codes (create, modify, deactivate).
+                        managing products (add, modify, delete<ins>, upload images</ins>), and managing promo codes (create, modify, deactivate<ins>, configure required product IDs for cart-contingent discounts</ins>).
                         Promo codes are stored in the PromoCodes database table and are validated and applied at checkout
                         in the cart, where the discount is calculated and deducted from the order total before the order
-                        is placed.</li>
+                        is placed.
+                        <ins>A new dedicated Promotions admin page (<code>managepromotions.html</code>) was also built to manage the promotional banners displayed above the customer-facing menu (creating, editing, image uploading, reordering, activating/deactivating), backed by the new <code>promotions</code> table.</ins></li>
                 </ul>
+                <aside class="revision-note">
+                    <p>The customer-facing promotional banners were moved under Neel's scope since they are part of the menu page. Ekaterina retains the Promotions admin page (creating, editing, toggling, and reordering banners) as well as the shared image-upload pipeline that both Products and Promotions use.</p>
+                </aside>
                 <br>
 
                 <h2>7. Wireframes</h2>
@@ -419,25 +598,28 @@
                 <p><strong>Deliverable</strong></p>
                 <p>A modern, responsive prototype with navigation, menu, and layouts for all pages of the site.</p>
 
-                <h3>Second Increment – Ordering and Cart Functionality</h3>
+                <h3>Second Increment – Ordering and Cart Functionality <span class="revision-badge revised">Revised</span></h3>
                 <p><strong>Date:</strong> April 8th, 2026</p>
                 <p>The goal of the second increment is to allow users to begin placing orders by selecting the products
                     they want and managing them in the cart.</p>
                 <p><strong>Functionality from each member</strong></p>
                 <ul>
-                    <li>Julien Wallace – Store and retrieve user’s cart from database</li>
+                    <li>Julien Wallace – Store and retrieve user’s cart from database <ins>(implemented as an open Orders row rather than localStorage)</ins></li>
                     <li>Daniel Kogan – Store and retrieve payment info from user accounts for orders</li>
                     <li>Alexander Perlock – Update orders in database depending on ready state for pickup/delivery
                         orders and show visually</li>
                     <li>Neel Patel – Retrieve menu items from database, add ability to add new menu items to database
-                        from admin page. Add items to cart</li>
-                    <li>Ekaterina Uhalova – Implement admin order management page (view orders, mark as fulfilled). Implement promo code validation and discount calculation at checkout in the cart</li>
+                        from admin page<ins>, including uploading a product image per menu item</ins>. Add items to cart. <ins>Begin rendering promotional banners above the menu grid from the <code>promotions</code> table</ins></li>
+                    <li>Ekaterina Uhalova – Implement admin order management page (view orders, mark as fulfilled). Implement promo code validation and discount calculation at checkout in the cart <ins>(including conditional <code>requiredProductIDs</code> logic)</ins></li>
                 </ul>
                 <p><strong>Deliverable</strong></p>
                 <p>Users can browse products, add products to their cart, choose pickup/delivery, and log into an
                     account.</p>
+                <aside class="revision-note">
+                    <p>Two architectural changes landed during this increment that weren't in the original plan: the cart moved to server-side tracking on the Orders table (so promo codes could be validated against cart contents), and Products/Promotions gained a shared image-upload pipeline.</p>
+                </aside>
 
-                <h3>Third Increment – Final Delivery</h3>
+                <h3>Third Increment – Final Delivery <span class="revision-badge revised">Revised</span></h3>
                 <p><strong>Date:</strong> April 19th, 2026</p>
                 <p>The goal of the third increment is to complete the full app by allowing users to place and complete
                     their orders, store order data, and finalize the design.</p>
@@ -445,15 +627,18 @@
                 <ul>
                     <li>Julien Wallace – Integrate cart service with pickup/delivery service</li>
                     <li>Daniel Kogan – Store and retrieve order data for user accounts, show total orders, revenue for
-                        admin account</li>
+                        admin account<ins>. The account page now also pre-fills the customer's current email, phone, and address into the edit form</ins></li>
                     <li>Alexander Perlock – Finalize pickup service with separate page showing pending orders and way to
                         complete them</li>
-                    <li>Neel Patel – Finalize design of menu</li>
-                    <li>Ekaterina Uhalova – Finalize admin interface: product management (add, modify, delete products) and promo code management (create, modify, deactivate promo codes) from admin account</li>
+                    <li>Neel Patel – Finalize design of menu<ins>, including the new promotional banners row rendered above the menu grid from the Promotions table</ins></li>
+                    <li>Ekaterina Uhalova – Finalize admin interface: product management (add, modify, delete products<ins>, upload product images</ins>) and promo code management (create, modify, deactivate promo codes<ins>, configure required product IDs per code</ins>) from admin account. <ins>Also build and finalize the new Promotions admin page (add/edit/delete/reorder/activate banners with image upload).</ins></li>
                 </ul>
                 <p><strong>Deliverable</strong></p>
                 <p>A complete restaurant website where customers can create accounts, browse the menu, place
                     pickup/delivery orders, and view their previous orders.</p>
+                <aside class="revision-note">
+                    <p>Final-increment additions beyond the original plan: the dedicated Promotions admin page (distinct from Promo Codes), conditional promo codes that check cart contents on apply / refresh / checkout, an applied-promo chip with a remove button in the cart UI, and the "Account" header link replacing the old "Logged in as &lt;email&gt;" text.</p>
+                </aside>
                 <br>
 
                 <h2>9. Client Feedback</h2>

@@ -23,6 +23,181 @@
     display: block
 }
 
+.revision-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+.revision-badge.new {
+    background: #D4EDDA;
+    color: #1E5D2E;
+    border: 1px solid #1E5D2E;
+}
+
+.revision-badge.revised {
+    background: #E3E5FF;
+    color: #2F347A;
+    border: 1px solid #2F347A;
+}
+
+.revision-note {
+    background: #F5F6FF;
+    border-left: 4px solid #2F347A;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.92rem;
+    color: #2D2D2D;
+}
+
+.revision-note::before {
+    content: "\270E  Revision Note";
+    display: block;
+    font-weight: 700;
+    color: #2F347A;
+    margin-bottom: 0.35rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.revision-note p {
+    margin: 0 0 0.4rem;
+}
+
+.revision-note p:last-child {
+    margin-bottom: 0;
+}
+
+.revision-log {
+    background: #FFFFFF;
+    border: 2px solid #2F347A;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0 2rem;
+    color: #2D2D2D;
+}
+
+.revision-log h3 {
+    color: #2F347A;
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+}
+
+.revision-log ul {
+    margin-bottom: 0.3rem;
+}
+
+.revision-log li {
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+}
+
+.revision-log .rev-date {
+    font-size: 0.85rem;
+    color: #4A4E80;
+    margin-bottom: 0.8rem;
+    font-style: italic;
+}
+
+tr.new-row td {
+    background: #E8F5E9;
+}
+
+tr.new-row td:first-child::after {
+    content: " NEW";
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #1E5D2E;
+    background: #D4EDDA;
+    border: 1px solid #1E5D2E;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+}
+
+ins {
+    background: #D4EDDA;
+    text-decoration: none;
+    padding: 0 0.2em;
+    border-radius: 2px;
+    color: #1E5D2E;
+}
+
+del {
+    background: #F8D7DA;
+    padding: 0 0.2em;
+    border-radius: 2px;
+    color: #72151F;
+}
+
+[data-theme="dark"] .revision-badge.new {
+    background: rgba(129, 199, 132, 0.18);
+    color: #A5D6A7;
+    border-color: #81C784;
+}
+
+[data-theme="dark"] .revision-badge.revised {
+    background: rgba(165, 174, 255, 0.18);
+    color: #C5CBFF;
+    border-color: #A5AEFF;
+}
+
+[data-theme="dark"] .revision-note {
+    background: rgba(255, 255, 255, 0.06);
+    border-left-color: #A5AEFF;
+    color: #E8EAF6;
+}
+
+[data-theme="dark"] .revision-note::before {
+    color: #C5CBFF;
+}
+
+[data-theme="dark"] .revision-log {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #A5AEFF;
+    color: #E8EAF6;
+}
+
+[data-theme="dark"] .revision-log h3 {
+    color: #C5CBFF;
+}
+
+[data-theme="dark"] .revision-log .rev-date {
+    color: #A5AEFF;
+}
+
+[data-theme="dark"] tr.new-row td {
+    background: rgba(129, 199, 132, 0.15);
+    color: #E8F5E9;
+}
+
+[data-theme="dark"] tr.new-row td:first-child::after {
+    background: rgba(129, 199, 132, 0.22);
+    color: #A5D6A7;
+    border-color: #81C784;
+}
+
+[data-theme="dark"] ins {
+    background: rgba(129, 199, 132, 0.22);
+    color: #A5D6A7;
+}
+
+[data-theme="dark"] del {
+    background: rgba(239, 154, 154, 0.22);
+    color: #FFCDD2;
+}
+
 /* tablet */
 @media (min-width: 481px) and (max-width: 768px) {
     .projectimg {
