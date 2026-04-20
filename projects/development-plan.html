@@ -147,7 +147,7 @@
                     </tbody>
                 </table>
                 <aside class="revision-note">
-                    <p>Added an <code>admin</code> boolean column so the same users table can back both customer and administrator accounts. Every admin page (<code>/admin/*</code>) checks this flag before rendering; setting <code>admin = 1</code> on a seeded user is how we grant access to the admin panel during testing.</p>
+                    <p>Added an <code>admin</code> boolean column so the same accounts table can back both customer and administrator accounts. Every admin page (<code>/admin/*</code>) checks this flag before rendering; setting <code>admin = 1</code> on a seeded user is how we grant access to the admin panel during testing.</p>
                 </aside>
 
                 <h3>Table 2: Products <span class="revision-badge revised">Revised</span></h3>
@@ -200,18 +200,18 @@
                     <p><code>productClass</code> has also been promoted to a proper foreign key linking into the new <code>productClasses</code> taxonomy table so categories can be administered centrally instead of being free-text per product.</p>
                 </aside>
 
-                <h3>Table 3: Orders</h3>
+                <h3>Table 3: Orders <span class="revision-badge revised">Revised</span></h3>
                 <p>
                     We need this table to get a list of all orders that were ordered, including past orders for order
                     history.
                     The information that will be stored is the account that ordered, the address to
-                    deliver to if its delivery, the date it was ordered, and whether the order has been fulfilled.
+                    deliver to if its delivery, the date it was ordered, <ins>whether the order is being fulfilled as pickup or delivery,</ins> and whether the order has been fulfilled<ins>, along with the promo discount that was actually applied to the order at checkout</ins>.
                     The individual items in each order are stored in the OrderDetails table (see below),
                     following proper database normalization principles (similar to the Northwind sample database on W3Schools).
                 </p>
                 <p>
                     Fields: <code>orderId</code> (number), <code>accountId</code> (number), <code>orderDate</code> (text),
-                    <code>address</code> (text), <code>fulfilled</code> (boolean).
+                    <code>address</code> (text)<ins>, <code>fulfillmentMethod</code> (text, "pickup" or "delivery", default "pickup")</ins>, <code>fulfilled</code> (boolean)<ins>, <code>discountTotal</code> (float, promo discount stamped at checkout)</ins>.
                     Primary key will be <code>orderId</code>. Foreign key <code>accountId</code> references User Accounts.
                 </p>
                 <table>
@@ -238,12 +238,25 @@
                             <td><code>address</code></td>
                             <td>text</td>
                         </tr>
+                        <tr class="new-row">
+                            <td><code>fulfillmentMethod</code></td>
+                            <td>varchar(20) NOT NULL default 'pickup'</td>
+                        </tr>
                         <tr>
                             <td><code>fulfilled</code></td>
                             <td>boolean</td>
                         </tr>
+                        <tr class="new-row">
+                            <td><code>discountTotal</code></td>
+                            <td>float / Number</td>
+                        </tr>
                     </tbody>
                 </table>
+                <aside class="revision-note">
+                    <p>Added <code>fulfillmentMethod</code> so each order explicitly records whether it is a pickup or a delivery rather than trying to infer that from the address string. The customer picks between the two on the checkout panel before placing the order, and the new pickup confirmation page uses this flag to switch between <em>"Estimated Wait Time"</em> (pickup) and <em>"Estimated Delivery Prep Time"</em> (delivery) labels and to only show the delivery address block when relevant.</p>
+                    <p>Added <code>discountTotal</code> to persist the promo discount that was actually applied at checkout, so the order record matches exactly what the customer saw in their cart. The value is computed server-side in <code>complete_order.php</code> via the new <code>calculateOrderDiscountTotal()</code> helper (using the same percentage-vs-fixed rules as <code>get_cart.php</code>) and stamped onto the order row as part of the checkout transaction.</p>
+                    <p>Both columns are written with runtime <code>SHOW COLUMNS</code> guards (<code>ordersHasFulfillmentMethodColumn()</code> and <code>ordersHasDiscountTotalColumn()</code>) in <code>complete_order.php</code> so the app still runs cleanly against older databases that haven't been migrated to the new schema; <code>discountTotal</code> in particular is persisted via a separate follow-up <code>UPDATE</code> specifically so the primary fulfillment update stays identical on unmigrated databases.</p>
+                </aside>
 
                 <h3>Table 4: OrderDetails</h3>
                 <p>
@@ -478,8 +491,8 @@
                     </li>
                     <li><strong>Account Page</strong> <span class="revision-badge revised">Revised</span>
                         <ul>
-                            <li>SELECT from users table to <ins>pre-fill the current email, phone number, and address into the update form so the customer can see their existing values before editing</ins></li>
-                            <li>UPDATE users table through <code>changecredential.php</code> when the customer saves a new value</li>
+                            <li>SELECT from accounts table to <ins>pre-fill the current email, phone number, and address into the update form so the customer can see their existing values before editing</ins></li>
+                            <li>UPDATE accounts table through <code>changecredential.php</code> when the customer saves a new value</li>
                         </ul>
                     </li>
                     <li><strong>Product/Ordering page</strong>
@@ -497,7 +510,8 @@
                             <li><ins>DELETE individual items through <code>remove_from_order.php</code> (single-item remove button on every cart row)</ins></li>
                             <li>SELECT from PromoCodes table to validate and apply promo codes at checkout <ins>(<code>apply_promocode.php</code>, including the new <code>requiredProductIDs</code> check against the current cart)</ins></li>
                             <li><ins>Clear the applied promo through <code>remove_promocode.php</code> when the customer clicks the &times; on the applied-promo chip</ins></li>
-                            <li><ins>UPDATE Orders table to flip <code>fullfilled = 1</code> on checkout; the server re-verifies the applied promo code's requirements one last time before finalizing</ins></li>
+                            <li><ins>UPDATE Orders table to flip <code>fullfilled = 1</code> on checkout; the same statement also stamps the customer's chosen <code>fulfillmentMethod</code> (pickup or delivery) and the final <code>address</code> on the order row. The server re-verifies the applied promo code's requirements one last time before finalizing</ins></li>
+                            <li><ins>A follow-up UPDATE on Orders stamps <code>discountTotal</code> (the promo discount actually applied, computed server-side with the same percentage-vs-fixed rules as the cart display) so the order record exactly matches what the customer saw at checkout. Both writes are guarded by <code>SHOW COLUMNS</code> checks so the app still works against databases that predate the new columns</ins></li>
                         </ul>
                     </li>
                     <li><strong>Search all keywords of items from entire website</strong>
@@ -505,10 +519,14 @@
                             <li>SELECT from database for products</li>
                         </ul>
                     </li>
-                    <li><strong>Pick up service</strong>
+                    <li><strong>Pickup / Delivery Confirmation Page</strong> <span class="revision-badge revised">Revised</span>
                         <ul>
-                            <li>SELECT from database for pending orders</li>
-                            <li>UPDATE to database to complete order</li>
+                            <li><ins>Customer-facing confirmation view that the user lands on immediately after checkout (<code>/pickup/?order_id=N</code>), showing an estimated wait time, an itemized breakdown of the order that was just placed, and the delivery address when applicable</ins></li>
+                            <li><ins>SELECT from Orders + OrderDetails + Products (joined in <code>assets/php/pickup.php</code>) to build the itemized order summary table with columns <em>Product Name</em>, <em>Quantity</em>, <em>Price Per Unit</em>, and <em>Price</em>, followed by Subtotal / Discount / Tax (13%) / Total rows</ins></li>
+                            <li><ins>SELECT from ProductClasses to compute the estimated wait time server-side: items are grouped by their product class, the per-class <code>time</code> field drives the estimate, and the result is rounded up to the nearest five-minute mark</ins></li>
+                            <li><ins>Reads <code>orders.fulfillmentMethod</code> to swap the time-card label between <em>"Estimated Wait Time"</em> (pickup) and <em>"Estimated Delivery Prep Time"</em> (delivery), and to only render the delivery-address block for delivery orders</ins></li>
+                            <li><ins>Reads <code>orders.discountTotal</code>: the Discount row is hidden when the persisted value is exactly <code>0.00</code>, and shown with a leading &ldquo;&minus;&rdquo; prefix when a promo discount was applied</ins></li>
+                            <li><ins>Returns 401 for unauthenticated visitors and 404 when no matching order exists for the signed-in account, so other users cannot view each other's confirmation pages by guessing IDs</ins></li>
                         </ul>
                     </li>
                 </ul>
@@ -628,8 +646,8 @@
                     <li>Julien Wallace – Integrate cart service with pickup/delivery service</li>
                     <li>Daniel Kogan – Store and retrieve order data for user accounts, show total orders, revenue for
                         admin account<ins>. The account page now also pre-fills the customer's current email, phone, and address into the edit form</ins></li>
-                    <li>Alexander Perlock – Finalize pickup service with separate page showing pending orders and way to
-                        complete them</li>
+                    <li>Alexander Perlock – Finalize pickup service <del>with separate page showing pending orders and way to
+                        complete them</del><ins>as the post-checkout customer confirmation page at <code>/pickup/</code>. Implements the server-side wait-time calculation in <code>assets/php/pickup.php</code> (grouping the order's items by their <code>productClasses</code> and using <code>productClasses.time</code>, rounded up to the nearest five-minute mark), the itemized order summary table with Subtotal / Discount / Tax (13%) / Total rows, and the fulfillment-aware header that swaps between "Estimated Wait Time" and "Estimated Delivery Prep Time" based on <code>orders.fulfillmentMethod</code>. The admin-side order management (viewing and marking orders fulfilled) lives on <code>/admin/manageorders.php</code> and is owned by Ekaterina (see Order Management below)</ins></li>
                     <li>Neel Patel – Finalize design of menu<ins>, including the new promotional banners row rendered above the menu grid from the Promotions table</ins></li>
                     <li>Ekaterina Uhalova – Finalize admin interface: product management (add, modify, delete products<ins>, upload product images</ins>) and promo code management (create, modify, deactivate promo codes<ins>, configure required product IDs per code</ins>) from admin account. <ins>Also build and finalize the new Promotions admin page (add/edit/delete/reorder/activate banners with image upload).</ins></li>
                 </ul>
@@ -637,7 +655,7 @@
                 <p>A complete restaurant website where customers can create accounts, browse the menu, place
                     pickup/delivery orders, and view their previous orders.</p>
                 <aside class="revision-note">
-                    <p>Final-increment additions beyond the original plan: the dedicated Promotions admin page (distinct from Promo Codes), conditional promo codes that check cart contents on apply / refresh / checkout, an applied-promo chip with a remove button in the cart UI, and the "Account" header link replacing the old "Logged in as &lt;email&gt;" text.</p>
+                    <p>Final-increment additions beyond the original plan: the dedicated Promotions admin page (distinct from Promo Codes), conditional promo codes that check cart contents on apply / refresh / checkout, an applied-promo chip with a remove button in the cart UI, the build-out of the pickup confirmation page from a stub into a full post-checkout view with a server-side estimated-wait-time calculation and an itemized order summary (Subtotal / Discount / Tax / Total), the new <code>orders.fulfillmentMethod</code> column that disambiguates pickup from delivery (replacing the earlier address-string heuristic) and drives the pickup page's label + address rendering, the new <code>orders.discountTotal</code> column that records the promo discount actually applied at checkout so orders and cart always agree, the runtime <code>SHOW COLUMNS</code> guards in <code>complete_order.php</code> that let the app keep running against not-yet-migrated databases, and the "Account" header link replacing the old "Logged in as &lt;email&gt;" text.</p>
                 </aside>
                 <br>
 
